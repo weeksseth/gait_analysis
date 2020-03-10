@@ -7,8 +7,4 @@ This project uses OpenPose to capture the gait information from a video stream. 
 3. Try running `poseDetectVideo.py` or `poseTrailVideo.py`
 4. The UI thread is blocked while the pose detection is performed. This should be improved and the data from the pose detection should be captured for machine learning.
 
-
-
-
-
-![caleb_gait](C:\Users\ctc0647\Documents\04-Masters\CIS663\Paper\gait_analysis\results\caleb_gait.png)
+![caleb_gait](https://github.com/weeksseth/gait_analysis/blob/master/results/caleb_gait.png)
