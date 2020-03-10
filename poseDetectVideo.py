@@ -6,14 +6,15 @@ import imutils
 import numpy as np
 from imutils.video import FileVideoStream
 
-fvs = FileVideoStream('data/sarwesh.mov', queueSize=1024).start()  # with bag
+# fvs = FileVideoStream('data/sarwesh.mov', 1024).start()  # with bag
+fvs = FileVideoStream('data/caleb.mp4').start()  # without bag
 time.sleep(1.0)
 
 kernelSize = 7
 backgroundHistory = 15
 
-openposeProtoFile = "dnn_models/pose/coco/pose_deploy_linevec.prototxt"
-openposeWeightsFile = "dnn_models/pose/coco/pose_iter_440000.caffemodel"
+openposeProtoFile = "models/pose_deploy_linevec.prototxt"
+openposeWeightsFile = "models/pose_iter_440000.caffemodel"
 nPoints = 18
 
 # COCO Output Format
@@ -44,7 +45,7 @@ def getKeypoints(prob_map, thres=0.1):
     keypoints_array = []
 
     # find the blobs
-    _, contours, _ = cv2.findContours(map_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(map_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     # for each blob find the maxima
     for cnt in contours:
@@ -99,8 +100,8 @@ def getValidPairs(generated_output):
                     else:
                         continue
                     # Find p(u)
-                    interp_coord = list(zip(np.linspace(candA[i][0], candB[j][0], num=n_interp_samples),
-                                            np.linspace(candA[i][1], candB[j][1], num=n_interp_samples)))
+                    interp_coord = list(zip(np.linspace(candA[i][0], candB[j][0], n_interp_samples),
+                                            np.linspace(candA[i][1], candB[j][1], n_interp_samples)))
                     # Find L(p(u))
                     paf_interp = []
                     for k in range(len(interp_coord)):
@@ -119,7 +120,7 @@ def getValidPairs(generated_output):
                             found = 1
                 # Append the connection to the list
                 if found:
-                    valid_pair = np.append(valid_pair, [[candA[i][3], candB[max_j][3], max_score]], axis=0)
+                    valid_pair = np.append(valid_pair, [[candA[i][3], candB[max_j][3], max_score]], 0)
 
             # Append the detected connections to the global list
             validpairs.append(valid_pair)
@@ -166,12 +167,12 @@ def getPersonwiseKeypoints(validpairs, invalidpairs):
     return personwise_keypoints
 
 
-fgbg = cv2.createBackgroundSubtractorMOG2(history=backgroundHistory, detectShadows=True)
+fgbg = cv2.createBackgroundSubtractorMOG2(backgroundHistory, True)
 kernel = np.ones((kernelSize, kernelSize), np.uint8)
 
 while fvs.more():
     frame = fvs.read()
-    frame = imutils.resize(frame, width=960)
+    frame = imutils.resize(frame, 960)
 
     frameClone = frame.copy()
 
@@ -181,7 +182,7 @@ while fvs.more():
     # Fix the input Height and get the width according to the Aspect Ratio
     inHeight = 368
     inWidth = int((inHeight / frameHeight) * frameWidth)
-    inpBlob = cv2.dnn.blobFromImage(frame, 1.0 / 255, (inWidth, inHeight), (0, 0, 0), swapRB=False, crop=False)
+    inpBlob = cv2.dnn.blobFromImage(frame, 1.0 / 255, (inWidth, inHeight), (0, 0, 0), False, False)
 
     net = cv2.dnn.readNetFromCaffe(openposeProtoFile, openposeWeightsFile)
 

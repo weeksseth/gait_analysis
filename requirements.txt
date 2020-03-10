@@ -1,0 +1,4 @@
+# cat requirements.txt
+opencv-python>=4.2
+numpy>=1.17
+imutils>=0.5

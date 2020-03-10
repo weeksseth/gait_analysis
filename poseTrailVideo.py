@@ -6,11 +6,12 @@ import imutils
 import numpy as np
 from imutils.video import FileVideoStream
 
-fvs = FileVideoStream('data/sarwesh1.mov', queueSize=1024).start()  # with bag
+# fvs = FileVideoStream('data/sarwesh1.mov', queueSize=1024).start()  # with bag
+fvs = FileVideoStream('data/caleb.mp4').start()  # without bag
 time.sleep(1.0)
 
-openposeProtoFile = "dnn_models/pose/coco/pose_deploy_linevec.prototxt"
-openposeWeightsFile = "dnn_models/pose/coco/pose_iter_440000.caffemodel"
+openposeProtoFile = "models/pose_deploy_linevec.prototxt"
+openposeWeightsFile = "models/pose_iter_440000.caffemodel"
 nPoints = 18
 
 # COCO Output Format
@@ -41,7 +42,7 @@ def getKeypoints(prob_map, thres=0.1):
     keypoints_array = []
 
     # find the blobs
-    _, contours, _ = cv2.findContours(map_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(map_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     # for each blob find the maxima
     for cnt in contours:
@@ -58,14 +59,14 @@ keypoint_stack = []
 
 while fvs.more():
     frame = fvs.read()
-    frame = imutils.resize(frame, width=1080)
+    frame = imutils.resize(frame, 1080)
 
     frameClone = frame.copy()
 
     frameWidth = frame.shape[1]
     frameHeight = frame.shape[0]
 
-    inpBlob = cv2.dnn.blobFromImage(frame, 1.0 / 255, (frameWidth, frameHeight), (0, 0, 0), swapRB=False, crop=False)
+    inpBlob = cv2.dnn.blobFromImage(frame, 1.0 / 255, (frameWidth, frameHeight), (0, 0, 0), False, False)
 
     net = cv2.dnn.readNetFromCaffe(openposeProtoFile, openposeWeightsFile)
 
