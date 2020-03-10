@@ -1,6 +1,2 @@
 venv
 .idea
-*.prototxt
-*.caffemodel
-*.mp4
-*.mov
